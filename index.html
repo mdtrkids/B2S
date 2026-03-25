@@ -351,11 +351,15 @@
                 const itemTable = createPdfTable("ยอดขายแยก Item", invProductData, { 'Item': 'สินค้า', 'QTY Sale': 'จำนวนรวม', 'Sale (บาท)': 'ยอดขายรวม' }, ['40%', '25%', '35%']);
                 const paymentSummaryTable = createPaymentSummaryTableForPdf(invPaymentData);
                 const financialSummary = calculateAndGenerateSummaryHTML(invoiceData, currentPrice);
-                
+                 const printTestSummaryHtml = totalPrintTestQuantity > 0 ? 
+        `<div class="summary-row" style="margin-top:-0.5cm; margin-bottom: 0.5cm;">
+            <span class="summary-label" style="font-weight: normal;">จำนวนแผ่นปริ้นเทส (ยอด 0.00)</span>
+            <span class="summary-value">${formatNumber(totalPrintTestQuantity)} แผ่น</span>
+        </div>` : '';
                 const mainContent = `<div style="display: flex; align-items: flex-start; gap: 1cm;">
-                    <div style="width: 60%;">${branchTable}</div>
-                    <div style="width: 40%;">${itemTable}${paymentSummaryTable}${financialSummary}</div>
-                </div>`;
+        <div style="width: 60%;">${branchTable}</div>
+        <div style="width: 40%;">${itemTable}${printTestSummaryHtml}${paymentSummaryTable}${financialSummary}</div>
+    </div>`;
 
                 const invoiceHTML = `
                     <div class="invoice-instance" id="invoice-${index}" data-doc-number="${docNumber}">
@@ -577,7 +581,13 @@
             
             const totalPayAmount = processedPaymentData.reduce((s, p) => s + p['ยอดรวม'], 0);
             document.getElementById('payment-stats').innerHTML = `<div class="stat-item"><div class="stat-value">${formatNumber(processedPaymentData.length)}</div><div class="stat-label">ช่องทาง</div></div><div class="stat-item"><div class="stat-value">${formatCurrency(totalPayAmount)}</div><div class="stat-label">บาท</div></div>`;
-            
+            const printTestDisplay = document.getElementById('print-test-display');
+    if (totalPrintTestQuantity > 0) {
+        printTestDisplay.innerHTML = `จำนวนแผ่นปริ้นเทส : <strong>${formatNumber(totalPrintTestQuantity)}</strong> แผ่น`;
+        printTestDisplay.classList.remove('hidden');
+    } else {
+        printTestDisplay.classList.add('hidden');
+    }
             document.getElementById('print-test-display').classList.add('hidden');
 
             document.getElementById('results-container').classList.remove('hidden');
